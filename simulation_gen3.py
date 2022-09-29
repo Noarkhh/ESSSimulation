@@ -42,14 +42,16 @@ def plot_data(population):
 
 class Population:
     def __init__(self, size, fitness_change_factor, random_change_factor, number_of_behaviors=2,
-                 starting_animal_ratios=(1/2, 1/2), gens_in_sim=500):
+                 starting_animal_ratios=(1, 1), gens_in_sim=500):
         self.generation = 0
         self.gens_in_sim = gens_in_sim
         self.size = size
         self.behs = number_of_behaviors
         self.fitness_change = int(size * fitness_change_factor)
         self.random_change = int(size * random_change_factor)
-        self.animals = np.array([int(self.size * ratio) for ratio in starting_animal_ratios])
+        self.fitness_change_factor = fitness_change_factor
+        self.random_change_factor = random_change_factor
+        self.animals = np.array([int(self.size * ratio / sum(starting_animal_ratios)) for i, ratio in enumerate(starting_animal_ratios)])
         while sum(self.animals) != self.size:
             self.animals[np.random.randint(self.behs - 1)] += 1
         self.history = [[] for _ in range(number_of_behaviors)]
@@ -58,18 +60,10 @@ class Population:
         self.update_history()
 
     def new_generation(self):
-
-        # REMOVING ANIMALS
-        for _ in range(self.random_change + self.fitness_change):
-            self.animals[choices([i for i in range(self.behs)], self.animals)[0]] -= 1
-
-        # ADDING ANIMALS
-        # print(self.last_gen_points, self.all_points)
-        for random_animal_type in choices([i for i in range(self.behs)], self.last_gen_points, k=self.fitness_change):
-            self.animals[random_animal_type] += 1
-
-        for _ in range(self.random_change):
-            self.animals[np.random.randint(self.behs - 1)] += 1
+        for beh in range(self.behs):
+            self.animals[beh] *= (1 - (self.fitness_change_factor + self.random_change_factor))
+            self.animals[beh] += (self.last_gen_points[beh] / self.all_points) * self.fitness_change
+            self.animals[beh] += self.random_change / 3
 
         self.last_gen_points *= 0
         self.all_points = 0
@@ -85,14 +79,6 @@ class Population:
             avg_result /= self.size
             self.last_gen_points[beh] = int(avg_result * self.animals[beh])
             self.all_points += int(avg_result * self.animals[beh])
-
-        # for i in range(self.size // 2):
-        #     animal1 = self.animals[i * 2]
-        #     animal2 = self.animals[i * 2 + 1]
-        #     self.last_gen_points[animal1] += outcome_matrix[animal1, animal2]
-        #     self.all_points += outcome_matrix[animal1, animal2]
-        #     self.last_gen_points[animal2] += outcome_matrix[animal2, animal1]
-        #     self.all_points += outcome_matrix[animal2, animal1]
 
     def update_history(self):
         for beh in range(self.behs):
@@ -110,18 +96,13 @@ class Population:
         return string
 
 
-beh_names = ["hawk", "dove", "retaliator"]
-outcome_matrix = np.array([75,  150, 75,
-                           100, 115, 115,
-                           75,  115, 115]).reshape((3, 3))
-# v = 50
-# c = 100
-# outcome_matrix = {Hawk:       {Hawk: 100 + (v - c) // 2, Dove: 100 + v,      Retaliator: 100 + (v - c) // 2},
-#                   Dove:       {Hawk: 100,                Dove: 100 + v // 2, Retaliator: 100 + v // 2},
-#                   Retaliator: {Hawk: 100 + (v - c) // 2, Dove: 100 + v // 2, Retaliator: 100 + v // 2}}
+beh_names = ["dove", "hawk", "retaliator"]
+outcome_matrix = np.array([115, 100, 115,
+                           150, 75,  75,
+                           115, 75,  115]).reshape((3, 3))
 
-population = Population(size=10000, fitness_change_factor=0.1, random_change_factor=0.001,
-                        number_of_behaviors=2, starting_animal_ratios=(3/6, 3/6,), gens_in_sim=1000)
+population = Population(size=1000000, fitness_change_factor=0.1, random_change_factor=0.001,
+                        number_of_behaviors=3, starting_animal_ratios=(3, 2, 1), gens_in_sim=2000)
 
 print(population)
 population.run_simulation()
