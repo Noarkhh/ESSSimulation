@@ -1,5 +1,4 @@
 import numpy as np
-from random import shuffle, randrange, choices, choice
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredText
@@ -14,7 +13,7 @@ def plot_data(population):
     ax0 = plt.subplot2grid(gridsize, (0, 0), rowspan=4, colspan=12)
     ax0.set_title("Behaviors in the population over time")
     for beh_id in population.behs:
-        ax0.plot(population.history[beh_id], label=beh_names[beh_id] + 's', color=beh_colors[beh_id])
+        ax0.plot(population.history[beh_id], label=beh_names[beh_id], color=beh_colors[beh_id])
     ax0.set_ylim([0, population.size])
     ax0.set_ylabel("amount")
     ax0.set_xlabel("generation")
@@ -30,14 +29,14 @@ def plot_data(population):
     ax1 = plt.subplot2grid(gridsize, (5, 0), rowspan=4, colspan=4)
     ax1.set_title("Distribution of behaviors in the starting population")
     ax1.pie([population.history[beh_id][0] for beh_id in population.behs],
-            labels=[beh_names[i] + 's' for i in population.behs], autopct='%1.2f%%',
+            labels=[beh_names[i] for i in population.behs], autopct='%1.2f%%',
             shadow=True, startangle=90, colors=beh_colors[population.behs])
     ax1.axis("equal")
 
     ax2 = plt.subplot2grid(gridsize, (5, 8), rowspan=4, colspan=4)
     ax2.set_title("Distribution of behaviors in the final population")
     ax2.pie([population.history[beh_id][-1] for beh_id in population.behs],
-            labels=[beh_names[i] + 's' for i in population.behs], autopct='%1.2f%%',
+            labels=[beh_names[i] for i in population.behs], autopct='%1.2f%%',
             shadow=True, startangle=90, colors=beh_colors[population.behs])
     ax2.axis("equal")
     plt.show()
@@ -54,10 +53,10 @@ class Population:
         self.random_offspring = int(size * random_offspring_factor)
         self.fitness_offspring_factor = fitness_offspring_factor
         self.random_offspring_factor = random_offspring_factor
+        # self.overpopulation_factor = 0.05
         self.animals = np.zeros(max(self.behs) + 1)
         for i, ratio in enumerate(starting_animal_ratios):
             self.animals[behaviors[i]] = int(self.size * ratio / sum(starting_animal_ratios))
-        # self.animals = np.array([int(self.size * ratio / sum(starting_animal_ratios)) for i, ratio in enumerate(starting_animal_ratios)])
         while sum(self.animals) != self.size:
             self.animals[np.random.choice(self.behs)] += 1
         self.history = [[] for _ in range(max(behaviors) + 1)]
@@ -70,6 +69,8 @@ class Population:
             self.animals[beh] *= (1 - (self.fitness_offspring_factor + self.random_offspring_factor))
             self.animals[beh] += (self.last_gen_points[beh] / self.all_points) * self.fitness_offspring
             self.animals[beh] += self.random_offspring / len(self.behs)
+            # self.animals[beh] *= (1 - self.overpopulation_factor)
+            # self.animals[beh] += self.size * self.overpopulation_factor / len(self.behs)
 
         self.last_gen_points *= 0
         self.all_points = 0
@@ -103,32 +104,32 @@ class Population:
 
 
 """
-     ║ dove │ hawk │ ret. │ bully│
-═════╬══════╪══════╪══════╪══════╪       ╪══════╪       ╪═════╪ 
-dove ║  115 │  100 │  115 │  100 │       │  x1  │       │  n  │ 
-─────╫──────┼──────┼──────┼──────┼       ┼──────┼       ┼─────┼ 
-hawk ║  150 │  75  │  75  │  150 │       │  x2  │       │  n  │ 
-─────╫──────┼──────┼──────┼──────┼   *   ┼──────┼   =   ┼─────┼ 
-ret. ║  115 │  75  │  115 │  150 │       │  x3  │       │  n  │ 
-─────╫──────┼──────┼──────┼──────┼       ┼──────┼       ┼─────┼ 
-bully║  150 │  100 │  100 │  115 │       │  x4  │       │  n  │ 
-─────╫──────┼──────┼──────┼──────┼       ┼──────┼       ┼─────┼ 
-
-
+      ║ dove │ hawk │ ret. │ bully│prober│
+══════╬══════╪══════╪══════╪══════╪══════╪       ╪══════╪       ╪═════╪ 
+ dove ║  115 │  100 │  115 │  100 │  100 │       │  x1  │       │  n  │ 
+──────╫──────┼──────┼──────┼──────┼──────┼       ┼──────┼       ┼─────┼ 
+ hawk ║  150 │  75  │  75  │  150 │  75  │       │  x2  │       │  n  │ 
+──────╫──────┼──────┼──────┼──────┼──────┼       ┼──────┼       ┼─────┼ 
+ ret. ║  115 │  75  │  115 │  150 │  115 │   *   │  x3  │   =   │  n  │ 
+──────╫──────┼──────┼──────┼──────┼──────┼       ┼──────┼       ┼─────┼ 
+ bully║  150 │  100 │  100 │  115 │  100 │       │  x4  │       │  n  │ 
+──────╫──────┼──────┼──────┼──────┼──────┼       ┼──────┼       ┼─────┼ 
+prober║  150 │  75  │  115 │  150 │  115 │       │  x5  │       │  n  │
+──────╫──────┼──────┼──────┼──────┼──────┼       ┼──────┼       ┼─────┼
 """
-beh_names = ["dove", "hawk", "retaliator", "bully"]
+beh_names = ["doves", "hawks", "retaliators", "bullies", "probers"]
 beh_colors = np.array(['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f'])
-outcome_matrix = np.array([115, 100, 115, 100,
-                           150, 75,  75,  150,
-                           115, 75,  115, 150,
-                           150, 100, 100, 115]).reshape((4, 4))
-population = Population(size=1000000, fitness_offspring_factor=0.1, random_offspring_factor=0.001,
-                        behaviors=(0, 1), starting_animal_ratios=(1, 1), gens_in_sim=2000)
+outcome_matrix = np.array([[115, 100, 115, 100, 100],
+                           [150,  75,  75, 150,  75],
+                           [115,  75, 115, 150, 115],
+                           [150, 100, 100, 115, 100],
+                           [150,  75, 115, 150, 115]])
+population = Population(size=1000000, fitness_offspring_factor=0.1, random_offspring_factor=0.00,
+                        behaviors=(0, 1, 2, 3, 4), starting_animal_ratios=(1, 1, 1, 1, 1), gens_in_sim=10000)
 
 print(population)
 population.run_simulation()
 print(population)
 
-print(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 plot_data(population)
 
