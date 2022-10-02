@@ -24,7 +24,7 @@ def plot_data(population):
     anchored_text.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
 
     ax0.add_artist(anchored_text)
-    ax0.legend()
+    ax0.legend(loc="upper right")
 
     ax1 = plt.subplot2grid(gridsize, (5, 0), rowspan=4, colspan=4)
     ax1.set_title("Distribution of behaviors in the starting population")
@@ -43,12 +43,13 @@ def plot_data(population):
 
 
 class Population:
-    def __init__(self, size, fitness_offspring_factor, random_offspring_factor, behaviors=(0, 2),
-                 starting_animal_ratios=(1, 1), gens_in_sim=500):
+    def __init__(self, size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
+                 behaviors=(0, 2), starting_animal_ratios=(1, 1)):
         self.generation = 0
         self.gens_in_sim = gens_in_sim
         self.size = size
         self.behs = np.array(behaviors)
+        self.outcome_matrix = outcome_matrix
         self.fitness_offspring = int(size * fitness_offspring_factor)
         self.random_offspring = int(size * random_offspring_factor)
         self.fitness_offspring_factor = fitness_offspring_factor
@@ -82,7 +83,7 @@ class Population:
         for beh in self.behs:
             avg_result = 0
             for opponent in self.behs:
-                avg_result += outcome_matrix[beh, opponent] * self.animals[opponent]
+                avg_result += self.outcome_matrix[beh, opponent] * self.animals[opponent]
             avg_result /= self.size
             self.last_gen_points[beh] = int(avg_result * self.animals[beh])
             self.all_points += int(avg_result * self.animals[beh])
@@ -119,13 +120,19 @@ prober║  150 │  75  │  115 │  150 │  115 │       │  x5  │       
 """
 beh_names = ["doves", "hawks", "retaliators", "bullies", "probers"]
 beh_colors = np.array(['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f'])
-outcome_matrix = np.array([[115, 100, 115, 100, 100],
-                           [150,  75,  75, 150,  75],
-                           [115,  75, 115, 150, 115],
-                           [150, 100, 100, 115, 100],
-                           [150,  75, 115, 150, 115]])
-population = Population(size=1000000, fitness_offspring_factor=0.1, random_offspring_factor=0.00,
-                        behaviors=(0, 1, 2, 3, 4), starting_animal_ratios=(1, 1, 1, 1, 1), gens_in_sim=10000)
+outcome_matrix_simplified = np.array([[115, 100, 115, 100, 100],
+                                      [150,  75,  75, 150,  75],
+                                      [115,  75, 115, 150, 115],
+                                      [150, 100, 100, 115, 100],
+                                      [150,  75, 115, 150, 115]])
+
+outcome_matrix = np.array([[129,   119.5, 129,   119.5, 117.2],
+                           [180,   80.5,  81.9,  174.6, 81.10],
+                           [129,   77.7,  129,   157.1, 123.1],
+                           [180,   104.9, 111.9, 141.5, 111.2],
+                           [156.7, 79.9,  126.9, 159.4, 121.9]])
+population = Population(size=1000000, fitness_offspring_factor=0.1, random_offspring_factor=0.00, outcome_matrix=outcome_matrix,
+                        behaviors=(0, 1, 2, 3, 4), starting_animal_ratios=(1, 1, 1, 1, 1), gens_in_sim=2000)
 
 print(population)
 population.run_simulation()
