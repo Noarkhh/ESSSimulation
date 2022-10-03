@@ -1,16 +1,17 @@
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 from matplotlib.offsetbox import AnchoredText
 from tqdm import tqdm
 matplotlib.use('TkAgg')
 
 
 def plot_data(population):
-    gridsize = (9, 12)
+    gridsize = (10, 14)
     fig = plt.figure(figsize=(10, 8))
 
-    ax0 = plt.subplot2grid(gridsize, (0, 0), rowspan=4, colspan=12)
+    ax0 = plt.subplot2grid(gridsize, (0, 0), rowspan=4, colspan=14)
     ax0.set_title("Behaviors in the population over time")
     for beh_id in population.behs:
         ax0.plot(population.history[beh_id], label=beh_names[beh_id], color=beh_colors[beh_id])
@@ -26,19 +27,23 @@ def plot_data(population):
     ax0.add_artist(anchored_text)
     ax0.legend(loc="upper right")
 
-    ax1 = plt.subplot2grid(gridsize, (5, 0), rowspan=4, colspan=4)
+    ax1 = plt.subplot2grid(gridsize, (6, 0), rowspan=4, colspan=6)
     ax1.set_title("Distribution of behaviors in the starting population")
-    ax1.pie([population.history[beh_id][0] for beh_id in population.behs],
-            labels=[beh_names[i] for i in population.behs], autopct='%1.2f%%',
-            shadow=True, startangle=90, colors=beh_colors[population.behs])
-    ax1.axis("equal")
+    rects1 = ax1.bar([beh_names[i] for i in population.behs],
+                     [population.history[beh_id][0] / population.size for beh_id in population.behs],
+                     color=beh_colors[population.behs])
+    ax1.bar_label(rects1, labels=[str((population.history[beh_id][0] / population.size * 100).round(1)) + '%' for beh_id in population.behs], fmt='%1.2f%%', padding=3)
+    ax1.set_ylim([0, 1.1])
+    ax1.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=None, symbol='%', is_latex=False))
 
-    ax2 = plt.subplot2grid(gridsize, (5, 8), rowspan=4, colspan=4)
+    ax2 = plt.subplot2grid(gridsize, (6, 8), rowspan=4, colspan=6)
     ax2.set_title("Distribution of behaviors in the final population")
-    ax2.pie([population.history[beh_id][-1] for beh_id in population.behs],
-            labels=[beh_names[i] for i in population.behs], autopct='%1.2f%%',
-            shadow=True, startangle=90, colors=beh_colors[population.behs])
-    ax2.axis("equal")
+    rects2 = ax2.bar([beh_names[i] for i in population.behs],
+            [population.history[beh_id][-1] / population.size for beh_id in population.behs],
+            color=beh_colors[population.behs])
+    ax2.bar_label(rects2, labels=[str((population.history[beh_id][-1] / population.size * 100).round(2)) + '%' for beh_id in population.behs], padding=3)
+    ax2.set_ylim([0, 1.1])
+    ax2.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=None, symbol='%', is_latex=False))
     plt.show()
 
 
@@ -131,12 +136,14 @@ outcome_matrix = np.array([[129,   119.5, 129,   119.5, 117.2],
                            [129,   77.7,  129,   157.1, 123.1],
                            [180,   104.9, 111.9, 141.5, 111.2],
                            [156.7, 79.9,  126.9, 159.4, 121.9]])
-population = Population(size=1000000, fitness_offspring_factor=0.1, random_offspring_factor=0.00, outcome_matrix=outcome_matrix,
-                        behaviors=(0, 1, 2, 3, 4), starting_animal_ratios=(1, 1, 1, 1, 1), gens_in_sim=2000)
+if __name__ == "__main__":
+    population = Population(size=1000000, gens_in_sim=1000,
+                            fitness_offspring_factor=0.1, random_offspring_factor=0.001,
+                            outcome_matrix=outcome_matrix,
+                            behaviors=(0, 1, 2, 3, 4), starting_animal_ratios=(1, 0, 0, 0, 0))
+    print(population)
+    population.run_simulation()
+    print(population)
 
-print(population)
-population.run_simulation()
-print(population)
-
-plot_data(population)
+    plot_data(population)
 
