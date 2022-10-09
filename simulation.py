@@ -49,12 +49,13 @@ def plot_data(population):
                           population.behs], padding=3)
     ax2.set_ylim([0, 1.1])
     ax2.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=None, symbol='%', is_latex=False))
+    plt.subplots_adjust(left=0.1, bottom=0.06, right=0.95, top=0.95, wspace=0, hspace=0)
     plt.show()
 
 
 class Population:
     def __init__(self, size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
-                 behaviors, starting_animal_ratios):
+                 behaviors):
         self.generation = 0
         self.gens_in_sim = gens_in_sim
         self.size = size
@@ -86,7 +87,7 @@ class PopulationMath(Population):
     def __init__(self, size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
                  behaviors, starting_animal_ratios):
         super().__init__(size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
-                         behaviors, starting_animal_ratios)
+                         behaviors)
 
         self.animals = np.zeros(max(self.behs) + 1)
         for i, ratio in enumerate(starting_animal_ratios):
@@ -125,7 +126,7 @@ class PopulationRand(Population):
     def __init__(self, size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
                  behaviors, starting_animal_ratios):
         super().__init__(size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
-                         behaviors, starting_animal_ratios)
+                         behaviors)
 
         self.animals = [np.random.choice(self.behs, p=np.array(starting_animal_ratios) / sum(starting_animal_ratios))
                         for _ in range(self.size)]
@@ -194,9 +195,9 @@ outcome_matrix_complex = np.array([[129, 119.5, 129, 119.5, 117.2],
                                    [180, 104.9, 111.9, 141.5, 111.2],
                                    [156.7, 79.9, 126.9, 159.4, 121.9]])
 if __name__ == "__main__":
-    population = PopulationMath(size=100000, gens_in_sim=1000,
-                                fitness_offspring_factor=0.1, random_offspring_factor=0.001,
+    population = PopulationMath(size=100000, gens_in_sim=2500,
+                                fitness_offspring_factor=0.1, random_offspring_factor=0.00,
                                 outcome_matrix=outcome_matrix_complex,
-                                behaviors=(0, 1, 2, 3, 4), starting_animal_ratios=(1, 0, 0, 0, 0))
+                                behaviors=(0, 1, 2, 3, 4), starting_animal_ratios=(46, 1, 1, 1, 1))
     population.run_simulation()
     plot_data(population)
