@@ -16,7 +16,7 @@ def plot_data(population):
 
     ax0 = plt.subplot2grid(gridsize, (0, 0), rowspan=4, colspan=14)
     ax0.set_title("Behaviors in the population over time")
-    for beh_id in population.behs:
+    for beh_id in population.behaviors:
         ax0.plot(population.history[beh_id], label=beh_names[beh_id], color=beh_colors[beh_id])
     ax0.set_ylim([0, population.size])
     ax0.set_ylabel("amount")
@@ -32,23 +32,23 @@ def plot_data(population):
 
     ax1 = plt.subplot2grid(gridsize, (6, 0), rowspan=4, colspan=6)
     ax1.set_title("Distribution of behaviors in the starting population")
-    rects1 = ax1.bar([beh_names[i] for i in population.behs],
-                     [population.history[beh_id][0] / population.size for beh_id in population.behs],
-                     color=beh_colors[population.behs])
+    rects1 = ax1.bar([beh_names[i] for i in population.behaviors],
+                     [population.history[beh_id][0] / population.size for beh_id in population.behaviors],
+                     color=beh_colors[population.behaviors])
     ax1.bar_label(rects1,
                   labels=[str(round(population.history[beh_id][0] / population.size * 100, 2)) + '%' for beh_id in
-                          population.behs], fmt='%1.2f%%', padding=3)
+                          population.behaviors], fmt='%1.2f%%', padding=3)
     ax1.set_ylim([0, 1.1])
     ax1.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=None, symbol='%', is_latex=False))
 
     ax2 = plt.subplot2grid(gridsize, (6, 8), rowspan=4, colspan=6)
     ax2.set_title("Distribution of behaviors in the final population")
-    rects2 = ax2.bar([beh_names[i] for i in population.behs],
-                     [population.history[beh_id][-1] / population.size for beh_id in population.behs],
-                     color=beh_colors[population.behs])
+    rects2 = ax2.bar([beh_names[i] for i in population.behaviors],
+                     [population.history[beh_id][-1] / population.size for beh_id in population.behaviors],
+                     color=beh_colors[population.behaviors])
     ax2.bar_label(rects2,
                   labels=[str(round(population.history[beh_id][-1] / population.size * 100, 2)) + '%' for beh_id in
-                          population.behs], padding=3)
+                          population.behaviors], padding=3)
     ax2.set_ylim([0, 1.1])
     ax2.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=None, symbol='%', is_latex=False))
     plt.subplots_adjust(left=0.1, bottom=0.06, right=0.95, top=0.95, wspace=0, hspace=0)

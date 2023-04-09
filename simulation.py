@@ -1,85 +1,92 @@
 import numpy as np
 from plot_data import plot_data
-from tqdm import tqdm
-from ess_search import ess_search
+from abc import ABC, abstractmethod
 
 
-class Population:
-    def __init__(self, size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
-                 behaviors):
+class Population(ABC):
+    generation: int
+    generation_count: int
+    size: int
+    behaviors: np.array
+    outcome_matrix: np.array
+    fitness_offspring_factor: float
+    random_offspring_factor: float
+    fitness_offspring: float
+    random_offspring: float
+    history: list[list[float]]
+    behavior_points: np.array
+
+    def __init__(self,
+                 size: int,
+                 generation_count: int,
+                 fitness_offspring_factor: float,
+                 random_offspring_factor: float,
+                 outcome_matrix: np.array,
+                 behaviors: tuple) -> None:
         self.generation = 0
-        self.gens_in_sim = gens_in_sim
+        self.generation_count = generation_count
         self.size = size
-        self.behs = np.array(behaviors)
-        self.outcome_matrix = outcome_matrix
-        self.fitness_offspring = int(size * fitness_offspring_factor)
-        self.random_offspring = int(size * random_offspring_factor)
+        self.behaviors = np.array(behaviors)
+        self.outcome_matrix = outcome_matrix[np.ix_(np.array(behaviors), np.array(behaviors))]
         self.fitness_offspring_factor = fitness_offspring_factor
         self.random_offspring_factor = random_offspring_factor
-        # self.overpopulation_factor = 0.05
+        self.fitness_offspring = size * fitness_offspring_factor
+        self.random_offspring = size * random_offspring_factor
 
-        self.history = [[] for _ in range(max(self.behs) + 1)]
-        self.last_gen_points = np.array([0] * (max(self.behs) + 1))
-        self.all_points = 0
+        self.history = [[] for _ in range(max(self.behaviors) + 1)]
+        self.behavior_points = np.zeros(max(self.behaviors) + 1)
+
+    @abstractmethod
+    def new_generation(self) -> None: ...
+
+    @abstractmethod
+    def run_generation(self) -> None: ...
 
     def run_simulation(self):
-        for _ in range(self.gens_in_sim):
+        for _ in range(self.generation_count):
             self.run_generation()
             self.new_generation()
 
     def __str__(self):
         string = f"Population size: {self.size}\nGeneration: {self.generation}\n"
-        string += f"Animal counts: {({beh_id: self.history[beh_id][-1] for beh_id in self.behs})}\n"
-        string += f"Animal ratios: {({beh_id: self.history[beh_id][-1] / self.size for beh_id in self.behs})}\n"
+        string += f"Animal counts: {({beh_id: self.history[beh_id][-1] for beh_id in self.behaviors})}\n"
+        string += f"Animal ratios: {({beh_id: self.history[beh_id][-1] / self.size for beh_id in self.behaviors})}\n"
         return string
 
 
-class PopulationMath(Population):
-    def __init__(self, size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
+class PopulationAnalytical(Population):
+    def __init__(self, size, generation_count, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
                  behaviors, starting_animal_ratios):
-        super().__init__(size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
+        super().__init__(size, generation_count, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
                          behaviors)
-
-        self.animals = np.zeros(max(self.behs) + 1)
-        for i, ratio in enumerate(starting_animal_ratios):
-            self.animals[behaviors[i]] = self.size * ratio / sum(starting_animal_ratios)
+        self.animals = np.array(starting_animal_ratios) * self.size / np.sum(starting_animal_ratios)
         self.update_history()
 
     def new_generation(self):
-        for beh in self.behs:
-            self.animals[beh] *= (1 - (self.fitness_offspring_factor + self.random_offspring_factor))
-            self.animals[beh] += (self.last_gen_points[beh] / self.all_points) * self.fitness_offspring
-            self.animals[beh] += self.random_offspring / len(self.behs)
-            # self.animals[beh] *= (1 - self.overpopulation_factor)
-            # self.animals[beh] += self.size * self.overpopulation_factor / len(self.behs)
-
-        self.last_gen_points *= 0
-        self.all_points = 0
+        self.animals *= (1 - (self.fitness_offspring_factor + self.random_offspring_factor))
+        self.animals += (self.behavior_points / np.sum(self.behavior_points)) * self.fitness_offspring
+        self.animals += self.random_offspring / len(self.animals)
 
         self.generation += 1
         self.update_history()
 
     def run_generation(self):
-        for beh in self.behs:
-            avg_result = 0
-            for opponent in self.behs:
-                avg_result += self.outcome_matrix[beh, opponent] * self.animals[opponent]
-            avg_result /= self.size
-            self.last_gen_points[beh] = avg_result * self.animals[beh]
-            self.all_points += avg_result * self.animals[beh]
+        avg_results = (self.outcome_matrix * self.animals).sum(axis=1) / self.size
+        self.behavior_points = avg_results * self.animals
 
     def update_history(self):
-        for beh in self.behs:
-            self.history[beh].append(self.animals[beh])
+        for i, beh in enumerate(self.behaviors):
+            self.history[beh].append(self.animals[i])
 
 
 class PopulationRand(Population):
-    def __init__(self, size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
+    def __init__(self, size, generation_count, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
                  behaviors, starting_animal_ratios):
-        super().__init__(size, gens_in_sim, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
+        super().__init__(size, generation_count, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
                          behaviors)
-
-        self.animals = [np.random.choice(self.behs, p=np.array(starting_animal_ratios) / sum(starting_animal_ratios))
+        self.fitness_offspring = int(self.fitness_offspring)
+        self.random_offspring = int(self.random_offspring)
+        self.animals = [np.random.choice(self.behaviors, p=np.array(starting_animal_ratios) / sum(starting_animal_ratios))
                         for _ in range(self.size)]
         self.update_history()
 
@@ -91,14 +98,14 @@ class PopulationRand(Population):
             self.animals.pop(np.random.randint(len(self.animals) - 1))
 
         # ADDING ANIMALS
-        for random_animal_type in np.random.choice(self.behs, self.fitness_offspring,
-                                                   p=self.last_gen_points / sum(self.last_gen_points)):
+        for random_animal_type in np.random.choice(self.behaviors, self.fitness_offspring,
+                                                   p=self.behavior_points / sum(self.behavior_points)):
             self.animals.append(random_animal_type)
 
         for _ in range(self.random_offspring):
-            self.animals.append(np.random.choice(self.behs))
+            self.animals.append(np.random.choice(self.behaviors))
 
-        self.last_gen_points *= 0
+        self.behavior_points *= 0
 
         np.random.shuffle(self.animals)
         self.generation += 1
@@ -108,11 +115,11 @@ class PopulationRand(Population):
         for i in range(self.size // 2):
             animal1 = self.animals[i * 2]
             animal2 = self.animals[i * 2 + 1]
-            self.last_gen_points[animal1] += self.outcome_matrix[animal1, animal2]
-            self.last_gen_points[animal2] += self.outcome_matrix[animal2, animal1]
+            self.behavior_points[animal1] += self.outcome_matrix[animal1, animal2]
+            self.behavior_points[animal2] += self.outcome_matrix[animal2, animal1]
 
     def update_history(self):
-        for beh in self.behs:
+        for beh in self.behaviors:
             self.history[beh].append(0)
         for animal in self.animals:
             self.history[animal][-1] += 1
@@ -145,10 +152,10 @@ outcome_matrix_complex = np.array([[129, 119.5, 129, 119.5, 117.2],
                                    [180, 104.9, 111.9, 141.5, 111.2],
                                    [156.7, 79.9, 126.9, 159.4, 121.9]])
 if __name__ == "__main__":
-    population = PopulationMath(size=100000, gens_in_sim=2500,
-                                fitness_offspring_factor=0.1, random_offspring_factor=0.00001,
-                                outcome_matrix=outcome_matrix_complex,
-                                behaviors=(0, 1, 2, 3, 4), starting_animal_ratios=(1, 1, 1, 1, 1))
+    population = PopulationAnalytical(size=100000, generation_count=5000,
+                                      fitness_offspring_factor=0.1, random_offspring_factor=0.001,
+                                      outcome_matrix=outcome_matrix_complex,
+                                      behaviors=(0, 2, 4), starting_animal_ratios=(1, 1, 1))
 
     population.run_simulation()
     plot_data(population)
