@@ -1,6 +1,10 @@
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from plot_data import plot_data
 from abc import ABC, abstractmethod
+
+behavior_names = ["doves", "hawks", "retaliators", "bullies", "probers"]
 
 
 class Population(ABC):
@@ -14,7 +18,7 @@ class Population(ABC):
     fitness_offspring: float
     random_offspring: float
     history: list[list[float]]
-    behavior_points: np.array
+    points: np.array
 
     def __init__(self,
                  size: int,
@@ -23,6 +27,7 @@ class Population(ABC):
                  random_offspring_factor: float,
                  outcome_matrix: np.array,
                  behaviors: tuple) -> None:
+
         self.generation = 0
         self.generation_count = generation_count
         self.size = size
@@ -33,8 +38,7 @@ class Population(ABC):
         self.fitness_offspring = size * fitness_offspring_factor
         self.random_offspring = size * random_offspring_factor
 
-        self.history = [[] for _ in range(max(self.behaviors) + 1)]
-        self.behavior_points = np.zeros(max(self.behaviors) + 1)
+        self.history = [[] for _ in self.behaviors]
 
     @abstractmethod
     def new_generation(self) -> None: ...
@@ -42,7 +46,11 @@ class Population(ABC):
     @abstractmethod
     def run_generation(self) -> None: ...
 
+    def history_to_dataframe(self) -> pd.DataFrame:
+        return pd.DataFrame({behavior_names[self.behaviors[i]]: records for i, records in enumerate(self.history)})
+
     def run_simulation(self):
+        self.history = [[] for _ in self.behaviors]
         for _ in range(self.generation_count):
             self.run_generation()
             self.new_generation()
@@ -64,7 +72,7 @@ class PopulationAnalytical(Population):
 
     def new_generation(self):
         self.animals *= (1 - (self.fitness_offspring_factor + self.random_offspring_factor))
-        self.animals += (self.behavior_points / np.sum(self.behavior_points)) * self.fitness_offspring
+        self.animals += (self.points / np.sum(self.points)) * self.fitness_offspring
         self.animals += self.random_offspring / len(self.animals)
 
         self.generation += 1
@@ -72,55 +80,60 @@ class PopulationAnalytical(Population):
 
     def run_generation(self):
         avg_results = (self.outcome_matrix * self.animals).sum(axis=1) / self.size
-        self.behavior_points = avg_results * self.animals
+        self.points = avg_results * self.animals
 
     def update_history(self):
-        for i, beh in enumerate(self.behaviors):
-            self.history[beh].append(self.animals[i])
+        for i, animal_count in enumerate(self.animals):
+            self.history[i].append(animal_count)
 
 
-class PopulationRand(Population):
+class PopulationSimulated(Population):
     def __init__(self, size, generation_count, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
                  behaviors, starting_animal_ratios):
         super().__init__(size, generation_count, fitness_offspring_factor, random_offspring_factor, outcome_matrix,
                          behaviors)
         self.fitness_offspring = int(self.fitness_offspring)
         self.random_offspring = int(self.random_offspring)
-        self.animals = [np.random.choice(self.behaviors, p=np.array(starting_animal_ratios) / sum(starting_animal_ratios))
-                        for _ in range(self.size)]
+        self.behaviors_number = len(behaviors)
+        self.animals = np.random.choice(self.behaviors_number, self.size,
+                                        p=np.array(starting_animal_ratios) / sum(starting_animal_ratios))
         self.update_history()
 
     def new_generation(self):
 
         # REMOVING ANIMALS
+        # for _ in range(self.random_offspring + self.fitness_offspring):
+        #     self.animals.pop(np.random.randint(len(self.animals) - 1))
+        #
+        # # ADDING ANIMALS
+        # for random_animal_type in np.random.choice(self.behaviors, self.fitness_offspring,
+        #                                            p=self.points / sum(self.points)):
+        #     self.animals.append(random_animal_type)
+        #
+        # for _ in range(self.random_offspring):
+        #     self.animals.append(np.random.choice(self.behaviors))
 
-        for _ in range(self.random_offspring + self.fitness_offspring):
-            self.animals.pop(np.random.randint(len(self.animals) - 1))
+        indices_to_replace = np.random.choice(self.size, size=self.random_offspring + self.fitness_offspring, replace=False)
+        self.animals[indices_to_replace[:self.fitness_offspring]] = \
+            np.random.choice(self.behaviors_number, self.fitness_offspring, p=self.points / sum(self.points))
+        self.animals[indices_to_replace[self.fitness_offspring:]] = \
+            np.random.randint(self.behaviors_number, size=self.random_offspring)
 
-        # ADDING ANIMALS
-        for random_animal_type in np.random.choice(self.behaviors, self.fitness_offspring,
-                                                   p=self.behavior_points / sum(self.behavior_points)):
-            self.animals.append(random_animal_type)
-
-        for _ in range(self.random_offspring):
-            self.animals.append(np.random.choice(self.behaviors))
-
-        self.behavior_points *= 0
-
-        np.random.shuffle(self.animals)
+        # np.random.shuffle(self.animals)
         self.generation += 1
         self.update_history()
 
     def run_generation(self):
+        self.points = np.zeros(self.behaviors_number)
         for i in range(self.size // 2):
             animal1 = self.animals[i * 2]
             animal2 = self.animals[i * 2 + 1]
-            self.behavior_points[animal1] += self.outcome_matrix[animal1, animal2]
-            self.behavior_points[animal2] += self.outcome_matrix[animal2, animal1]
+            self.points[animal1] += self.outcome_matrix[animal1, animal2]
+            self.points[animal2] += self.outcome_matrix[animal2, animal1]
 
     def update_history(self):
-        for beh in self.behaviors:
-            self.history[beh].append(0)
+        for records in self.history:
+            records.append(0)
         for animal in self.animals:
             self.history[animal][-1] += 1
 
@@ -152,26 +165,12 @@ outcome_matrix_complex = np.array([[129, 119.5, 129, 119.5, 117.2],
                                    [180, 104.9, 111.9, 141.5, 111.2],
                                    [156.7, 79.9, 126.9, 159.4, 121.9]])
 if __name__ == "__main__":
-    population = PopulationAnalytical(size=100000, generation_count=5000,
-                                      fitness_offspring_factor=0.1, random_offspring_factor=0.001,
+    population = PopulationAnalytical(size=5000, generation_count=5000,
+                                      fitness_offspring_factor=0.1, random_offspring_factor=0.00,
                                       outcome_matrix=outcome_matrix_complex,
                                       behaviors=(0, 2, 4), starting_animal_ratios=(1, 1, 1))
 
     population.run_simulation()
     plot_data(population)
-    # ess_search(PopulationMath, outcome_matrix_complex)
 
-"""
-    (0, 1, 4)
-    [[129.  119.5 117.2]
-     [180.   80.5  81.1]
-     [156.7  79.9 121.9]]
-     
-    [[0.42535135]
-     [0.32693185]
-     [0.2477168 ]]
-     
-    [[122.97108916]
-     [122.97108916]
-     [122.97108916]]
- """
+    # ess_search(PopulationMath, outcome_matrix_complex)
