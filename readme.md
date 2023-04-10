@@ -25,7 +25,7 @@ Value from each cell represents how much on average will a behavior from its' ro
 For example: A dove when contesting with another dove will on average earn 15 points each, because they will both waste time 
 $(2 \times -10)$ and only one of them will get the prize $(+50)$, this gives average value of $\dfrac{2 \times -10 + 50}{2} = 15$.
  
-Population consisting of only doves and hawks will reach an equilibrium with the ratio 5:7 (doves:hawks) (Figure 1.1). The same ratio can be achieved
+Population consisting of only doves and hawks will reach an equilibrium with the ratio 5:7 (doves:hawks) (see Figure 1.1 and 1.2). The same ratio can be achieved
 by solving a system of equations based on the outcome table with d and h variables and a parameter n:
  
 $$
@@ -39,6 +39,45 @@ This means that neither hawks or doves will gain advantage over the other. We al
 so acting like a dove with probability $\dfrac{5}{12}$ and acting like a hawk with probability $\dfrac{7}{12}$ could be considered 
 an **Evolutionary Stable Strategy**
 
+
+```python
+import numpy as np
+from simulation import PopulationAnalytical
+from plot_data import plot_population
+```
+
+
+```python
+outcome_matrix = np.array([[15, 0],
+                           [50, -25]])
+
+balanced_population = PopulationAnalytical(size=50000, generation_count=75,
+                                           fitness_offspring_factor=0.1, random_offspring_factor=0.0,
+                                           outcome_matrix=outcome_matrix,
+                                           behaviors=(0, 1), starting_animal_ratios=(1, 1))
+
+dove_dominant_population = PopulationAnalytical(size=50000, generation_count=75, 
+                                                fitness_offspring_factor=0.1, random_offspring_factor=0.0, 
+                                                outcome_matrix=outcome_matrix, 
+                                                behaviors=(0, 1), starting_animal_ratios=(10, 1))
+balanced_population.run_simulation()
+dove_dominant_population.run_simulation()
+plot_population(balanced_population, "Fig. 1.1. Balanced dove and hawk population coming to an equlibrium")
+plot_population(dove_dominant_population, "Fig. 1.2. Dove dominated dove and hawk population coming to an equlibrium")
+```
+
+
+    
+![png](readme_figures/output_3_0.png)
+    
+
+
+
+    
+![png](readme_figures/output_3_1.png)
+    
+
+
 Let's introduce another 3 behaviors:
 - Retaliator: Will act like a dove until attacked, then it will retaliate.
 - Bully: Will act like a hawk until getting attacked, then will act like a dove.
@@ -47,32 +86,32 @@ Let's introduce another 3 behaviors:
 We will also use the advanced version of outcome table[^4], for it has been studied more and is more complex 
 (we will add 100 to each cell for simulation purposes):
 
-|                     |Dove |Hawk |Retaliator|Bully|Prober-Retaliator|    
+|                     |Dove |Hawk |Retaliator|Bully|Prober-Retaliator| 
 |---------------------|:---:|:---:|:--------:|:---:|:---------------:|
-|**Dove**             |129  |119.5|129       |119.5|117.2            |
-|**Hawk**             |180  |80.5 |81.9      |174.6|81.10            |
-|**Retaliator**       |129  |77.7 |129       |157.1|123.1            |
-|**Bully**            |180  |104.9|111.9     |141.5|111.2            |
-|**Prober-Retaliator**|156.7|79.9 |126.9     |159.4|121.9            |
+|**Dove**             |29   |19.5 |29        |19.5 |17.2             |
+|**Hawk**             |80   |-19.5|-18.1     |74.6 |-18.9            |
+|**Retaliator**       |29   |-22.3|29        |57.1 |23.1             |
+|**Bully**            |80   |4.9  |11.9      |41.5 |11.2             |
+|**Prober-Retaliator**|56.7 |-20.1|26.9      |59.4 |21.9             |
 
 And from now on, instead of table we will use the **outcome matrix** with the ordering like in the table above:
 
 $$
 \left(\begin{array}{cc} 
-129 & 119.5 & 129 & 119.5 & 117.2\\
-180 & 80.5 & 81.9 & 174.6 & 81.10\\  
-129 & 77.7 & 129 & 157.1 & 123.1\\  
-180 & 104.9 & 111.9 & 141.5 & 111.2\\
-156.7 & 79.9 & 126.9 & 159.4 & 121.9\\
+29 & 19.5 & 29 & 19.5 & 17.2\\
+80 & -19.5 & -18.1 & 74.6 & -18.9\\  
+29 & -22.3 & 29 & 57.1 & 23.1\\  
+80 & 4.9 & 11.9 & 41.5 & 11.2\\
+56.7 & -20.1 & 26.9 & 59.4 & 21.9\\
 \end{array}\right)
 $$
- 
-[^1]: Cowden, C. C. (2012). *Game Theory, Evolutionary Stable Strategies and the Evolution of Biological Interactions.* Nature Education Knowledge 3(10):6.
 
-[^2]: Evolutionarily stable strategy. *Wikipedia*. https://en.wikipedia.org/wiki/Evolutionarily_stable_strategy.
+[^1]: Cowden, C. C. (2012). Game Theory, Evolutionary Stable Strategies and the Evolution of Biological Interactions. Nature Education Knowledge 3(10):6.
 
-[^3]: Dawkins, R. (1989). *The Selfish Gene (Anniversary edition)*. Oxford University Press.
+[^2]: Evolutionarily stable strategy. Wikipedia. https://en.wikipedia.org/wiki/Evolutionarily_stable_strategy.
 
-[^4]: Maynard Smith, J., Price, G. (1973). *The Logic of Animal Conflict.* Nature 246, pp. 15–18.
+[^3]: Dawkins, R. (1989). The Selfish Gene (Anniversary edition). Oxford University Press.
 
-[^5]: Gale, J., Eaves, L. (1975). *Logic of animal conflict.* Nature 254, pp. 463.
+[^4]: Maynard Smith, J., Price, G. (1973). The Logic of Animal Conflict. Nature 246, pp. 15–18.
+
+[^5]: Gale, J., Eaves, L. (1975). Logic of animal conflict. Nature 254, pp. 463.
