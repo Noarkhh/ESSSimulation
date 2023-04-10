@@ -31,8 +31,8 @@ def ess_search(population_type: Type[Population], outcome_matrix: np.ndarray):
             continue
         result /= sum(result)
         if all(elem >= 0 for elem in result):
-            population = population_type(size=100000, generation_count=2500,
-                                         fitness_offspring_factor=0.1, random_offspring_factor=0.00,
+            population = population_type(size=100000, generation_count=500,
+                                         fitness_offspring_factor=0.1, random_offspring_factor=0.001,
                                          outcome_matrix=outcome_matrix,
                                          behaviors=behaviors, starting_animal_ratios=tuple(result))
             population.run_simulation()

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from plot_data import plot_population
+import matplotlib.pyplot as plt
+from plot_data import plot_population, plot_ratios
 from abc import ABC, abstractmethod
 from ess_search import ess_search
 
@@ -34,7 +35,6 @@ class Population(ABC):
                  fitness_offspring_factor: float,
                  random_offspring_factor: float,
                  starting_animal_ratios: tuple[int | float, ...]) -> None:
-
         self.generation_count = generation_count
         self.size = size
         self.behaviors = np.array(behaviors)
@@ -78,7 +78,6 @@ class PopulationAnalytical(Population):
                  fitness_offspring_factor: float,
                  random_offspring_factor: float,
                  starting_animal_ratios: tuple[float | int, ...]) -> None:
-
         super().__init__(size, generation_count, behaviors, outcome_matrix,
                          fitness_offspring_factor, random_offspring_factor, starting_animal_ratios)
         self.animals = np.array(starting_animal_ratios) * self.size / np.sum(starting_animal_ratios)
@@ -167,25 +166,39 @@ prober║  150 │  75  │  115 │  150 │  115 │       │  x5  │       
 ──────╫──────┼──────┼──────┼──────┼──────┼       ┼──────┼       ┼─────┼
 """
 
-outcome_matrix_simplified = np.array([[115, 100, 115, 100, 100],
-                                      [150, 75, 75, 150, 75],
-                                      [115, 75, 115, 150, 115],
-                                      [150, 100, 100, 115, 100],
-                                      [150, 75, 115, 150, 115]])
+outcome_matrix_simplified = np.array([[15, 0, 15, 0, 00],
+                                      [50, -25, -25, 50, -25],
+                                      [15, -25, 15, 50, 15],
+                                      [50, 0, 00, 15, 00],
+                                      [50, -25, 15, 50, 15]])
 
-outcome_matrix_complex = np.array([[129, 119.5, 129, 119.5, 117.2],
-                                   [180, 80.5, 81.9, 174.6, 81.10],
-                                   [129, 77.7, 129, 157.1, 123.1],
-                                   [180, 104.9, 111.9, 141.5, 111.2],
-                                   [156.7, 79.9, 126.9, 159.4, 121.9]])
+outcome_matrix = np.array([[29, 19.5, 29, 19.5, 17.2],
+                           [80, -19.5, -18.1, 74.6, -18.9],
+                           [29, -22.3, 29, 57.1, 23.1],
+                           [80, 4.9, 11.9, 41.5, 11.2],
+                           [56.7, -20.1, 26.9, 59.4, 21.9]])
+
+
+def expected_rewards(outcome_matrix: np.ndarray, behaviors: tuple[int, int] = (0, 1)) -> pd.DataFrame:
+    rewards = [[], []]
+    outcome_matrix = outcome_matrix[np.ix_(behaviors, behaviors)]
+    for ratio in np.linspace(0, 1, 100):
+        behavior_ratios = np.array((ratio, 1 - ratio))
+        avg_results = (outcome_matrix * behavior_ratios).sum(axis=1)
+        rewards[0].append(avg_results[0])
+        rewards[1].append(avg_results[1])
+    df = pd.DataFrame({behavior_names[behaviors[i]]: records for i, records in enumerate(rewards)})
+    df['index'] = np.linspace(0, 1, 100)
+    return df.set_index('index')
+
 
 if __name__ == "__main__":
     population = PopulationAnalytical(size=50000, generation_count=1500,
                                       fitness_offspring_factor=0.1, random_offspring_factor=0.00,
-                                      outcome_matrix=outcome_matrix_complex - 100,
+                                      outcome_matrix=outcome_matrix,
                                       behaviors=(0, 2, 4), starting_animal_ratios=(1, 1, 1))
 
-    population.run_simulation()
-    plot_population(population)
-
-    # ess_search(PopulationAnalytical, outcome_matrix_complex - 100)
+    # population.run_simulation()
+    # plot_population(population)
+    # plot_ratios(get_rewards(outcome_matrix_simplified))
+    ess_search(PopulationAnalytical, outcome_matrix)
