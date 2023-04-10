@@ -186,10 +186,11 @@ plot_population(dove_dominant_population, "Fig. 2.2. Dove dominant population ma
 </div>
 
 The population made up of all behaviors with equal starting percentages ends up being dominated by probers-retaliators and other behaviors die out (see Figure 2.1.). However if the starting population is different, for example dominated by doves, the final population can be dominated by an equlibrium of hawks and bullies[^4] (see Figure 2.2.). The outcome of the simulation may seem difficult to predict, but we will try to find an analytical method to predict whether a population composed of given behaviors can be **evolutionarily stable**.
+## Analytical approach
 
-### Analytical approach
+### Assumptions and definitions
 
-Assumptions:
+For our first analytical model we will assume the following:
 - There are no random mutations, the "random offspring factor" parameter is set to 0.
 - The population of any behavior cannot fall below 0.
 
@@ -208,9 +209,7 @@ m_{a_{r}, b_{1}} & m_{a_{r}, b_{2}} & \dots & m_{a_{r}, b_{s}}  \\
 \tag{3}
 $$
 
-where 
-$\set{a_{1}, a_{2}, \dots, a_{r}}$ are the indices of the $r$ selected rows and $\set{b_{1}, b_{2}, \dots, b_{s}}$ are the indices of the $s$ selected columns.
-For example let's construct matrix $M_{0}$ by taking elements from $M$ that are on rows 1, 4 and colums 1, 4: 
+where $\{ a_1, a_2, \dots, a_r \}$ are the indices of the $r$ selected rows and $\{ b_{1}, b_{2}, \dots, b_{s} \}$ are the indices of the $s$ selected columns. For example let's construct matrix $M_{0}$ by taking elements from $M$ that are on rows 1, 4 and colums 1, 4: 
 
 $$
 M_{0} = M[1, 4; 1, 4] = 
@@ -221,7 +220,26 @@ M_{0} = M[1, 4; 1, 4] =
 \tag{4}
 $$
 
+We will define *population* as a n-element vector, where n is the amount of behaviors in the population and it's elements are the amounts of population membert that have given behavior. 
+- Sum of the elements of population is constant and equal to initial population size.
+- All elements are non-negative.
 
+We will also define different types of *stability*:
+- ***Weak stability***: the population is stable with this exact behavior distribution, but there exists a vector $v$ with the same dimension as given *population* and $\forall\varepsilon\in\mathbb{R}_{+} ||v|| < \varepsilon$, that when added to the *population* will destabilize it.
+- ***Strong stability***: the population is stable and any vector $v$ with the same dimension as given *population* and $\forall\varepsilon\in\mathbb{R}_{+} ||v|| < \varepsilon$ when added to the *population* will cause it to return to the state before the addition.
+
+### Predicting the expected rewards
+
+The necessary condition for a population consisting of behaviors $\{a_1, a_2, \dots, a_r\}$ to be *strongly stable* and necessary and sufficient to be *weakly stable* is that there exist $r$ positive variables $\{x_1, x_2, \dots, x_r\}$ and any parameter $c$ that satisfy a system of equations given by following matrix multiplication:
+
+$$
+M[a_1, a_2, \dots, a_r; a_1, a_2, \dots, a_r]
+\begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_r \end{bmatrix}
+ = 
+\begin{bmatrix} c \\ c \\ \vdots \\ c \end{bmatrix}
+$$
+
+When vector of variables that satisfy this system of equations is normalized, it's elements are proportions of corresponding behaviors in the result *population*.
 
 [^1]: Cowden, C. C. (2012). Game Theory, Evolutionary Stable Strategies and the Evolution of Biological Interactions. Nature Education Knowledge 3(10):6.
 
