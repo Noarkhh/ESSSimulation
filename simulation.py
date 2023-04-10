@@ -3,7 +3,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from plot_data import plot_population, plot_ratios
+import matplotlib as mpl
+from plot_data import plot_population, plot_ratios, theme_init
 from abc import ABC, abstractmethod
 from ess_search import ess_search
 
@@ -198,7 +199,10 @@ if __name__ == "__main__":
                                       outcome_matrix=outcome_matrix,
                                       behaviors=(0, 2, 4), starting_animal_ratios=(1, 1, 1))
 
-    # population.run_simulation()
-    # plot_population(population)
-    # plot_ratios(get_rewards(outcome_matrix_simplified))
-    ess_search(PopulationAnalytical, outcome_matrix)
+    # print(plt.style.library['ggplot'])
+    # print(plt.style.available)
+    theme_init("dark")
+    population.run_simulation()
+    plot_population(population, theme="dark")
+    plot_ratios(expected_rewards(outcome_matrix_simplified), theme="dark")
+    # ess_search(PopulationAnalytical, outcome_matrix)

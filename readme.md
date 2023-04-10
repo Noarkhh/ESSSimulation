@@ -45,11 +45,15 @@ This means that neither hawks or doves will gain advantage over the other and th
 ```python
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 from simulation import PopulationAnalytical, expected_rewards
-from plot_data import plot_population, plot_ratios
+from plot_data import plot_population, plot_ratios, theme_init
 
 %matplotlib inline
 %config InlineBackend.figure_format = 'svg'
+
+theme="light"
+theme_init(theme)
 ```
 
 
@@ -62,32 +66,35 @@ balanced_population = PopulationAnalytical(size=50000, generation_count=75,
                                            outcome_matrix=outcome_matrix,
                                            behaviors=(0, 1), starting_animal_ratios=(1, 1))
 
-dove_dominant_population = PopulationAnalytical(size=50000, generation_count=75, 
+dove_dominant_population = PopulationAnalytical(size=50000, generation_count=75,
                                                 fitness_offspring_factor=0.1, random_offspring_factor=0.0, 
                                                 outcome_matrix=outcome_matrix, 
                                                 behaviors=(0, 1), starting_animal_ratios=(10, 1))
 balanced_population.run_simulation()
 dove_dominant_population.run_simulation()
-plot_population(balanced_population, "Fig. 1.1. Balanced dove and hawk population coming to an equlibrium in a simulation")
-plot_population(dove_dominant_population, "Fig. 1.2. Dove dominated dove and hawk population coming to an equlibrium in a simulation")
-plot_ratios(expected_rewards(outcome_matrix), description="Fig. 1.3. Expected rewards in dove and hawk population,\nequal at x = 5/12")
+plot_population(balanced_population, "Fig. 1.1. Balanced dove and hawk population coming to an equlibrium in a simulation", theme=theme)
+plot_population(dove_dominant_population, "Fig. 1.2. Dove dominated dove and hawk population coming to an equlibrium in a simulation", theme=theme)
+plot_ratios(expected_rewards(outcome_matrix), description="Fig. 1.3. Expected rewards in dove and hawk population,\nequal at x = 5/12", theme=theme)
 ```
 
 
     
-![svg](readme_figures/output_3_0.svg)
+![svg](readme_figures/output_3_0d.svg#gh-dark-mode-only)
+![svg](readme_figures/output_3_0l.svg#gh-light-mode-only)
     
 
 
 
     
-![svg](readme_figures/output_3_1.svg)
+![svg](readme_figures/output_3_1d.svg#gh-dark-mode-only)
+![svg](readme_figures/output_3_1l.svg#gh-light-mode-only)
     
 
 
 
     
-![svg](readme_figures/output_3_2.svg)
+![svg](readme_figures/output_3_2d.svg#gh-dark-mode-only)
+![svg](readme_figures/output_3_2l.svg#gh-light-mode-only)
     
 
 
@@ -100,13 +107,13 @@ Let's introduce another 3 behaviors:
 
 We will also use the advanced version of outcome table[^3], for it has been studied more and is more complex:
 
-|                     |Dove |Hawk |Retaliator|Bully|Prober-Retaliator| 
-|---------------------|:---:|:---:|:--------:|:---:|:---------------:|
-|**Dove**             |29   |19.5 |29        |19.5 |17.2             |
-|**Hawk**             |80   |-19.5|-18.1     |74.6 |-18.9            |
-|**Retaliator**       |29   |-22.3|29        |57.1 |23.1             |
-|**Bully**            |80   |4.9  |11.9      |41.5 |11.2             |
-|**Prober-Retaliator**|56.7 |-20.1|26.9      |59.4 |21.9             |
+|                       | Dove | Hawk  | Retaliator | Bully | Prober-Retaliator |
+|-----------------------|:----:|:-----:|:----------:|:-----:|:-----------------:|
+| **Dove**              |  29  | 19.5  |     29     | 19.5  |       17.2        |
+| **Hawk**              |  80  | -19.5 |   -18.1    | 74.6  |       -18.9       |
+| **Retaliator**        |  29  | -22.3 |     29     | 57.1  |       23.1        |
+| **Bully**             |  80  |  4.9  |    11.9    | 41.5  |       11.2        |
+| **Prober-Retaliator** | 56.7 | -20.1 |    26.9    | 59.4  |       21.9        |
 
 And from now on, instead of table we will use the **outcome matrix** with the ordering like in the table above:
 
@@ -142,19 +149,21 @@ dove_dominant_population = PopulationAnalytical(size=50000, generation_count=500
                                                 behaviors=(0, 1, 2, 3, 4), starting_animal_ratios=(36, 1, 1, 1, 1))
 balanced_population.run_simulation()
 dove_dominant_population.run_simulation()
-plot_population(balanced_population, "Fig. 2.1. Population made up of all behaviors with equal starting percentages\nbeing dominated by probers in a simulation")
-plot_population(dove_dominant_population, "Fig. 2.2. Dove dominant population made up of all behaviors with being\ndominated by an equilibrium of hawks and bullies in a simulation")
+plot_population(balanced_population, "Fig. 2.1. Population made up of all behaviors with equal starting percentages\nbeing dominated by probers in a simulation", theme=theme)
+plot_population(dove_dominant_population, "Fig. 2.2. Dove dominant population made up of all behaviors with being\ndominated by an equilibrium of hawks and bullies in a simulation", theme=theme)
 ```
 
 
     
-![svg](readme_figures/output_6_0.svg)
+![svg](readme_figures/output_6_0d.svg#gh-dark-mode-only)
+![svg](readme_figures/output_6_0l.svg#gh-light-mode-only)
     
 
 
 
     
-![svg](readme_figures/output_6_1.svg)
+![svg](readme_figures/output_6_1d.svg#gh-dark-mode-only)
+![svg](readme_figures/output_6_1l.svg#gh-light-mode-only)
     
 
 
