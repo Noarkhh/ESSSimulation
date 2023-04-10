@@ -84,12 +84,19 @@ plot_ratios(expected_rewards(outcome_matrix), description="Fig. 1.3. Expected re
     
 
 
+</br>
+</br>
+</br>
+
 
     
 ![svg](readme_figures/output_3_1d.svg#gh-dark-mode-only)
 ![svg](readme_figures/output_3_1l.svg#gh-light-mode-only)
     
 
+</br>
+</br>
+</br>
 
 
     
@@ -159,6 +166,9 @@ plot_population(dove_dominant_population, "Fig. 2.2. Dove dominant population ma
 ![svg](readme_figures/output_6_0l.svg#gh-light-mode-only)
     
 
+</br>
+</br>
+</br>
 
 
     
