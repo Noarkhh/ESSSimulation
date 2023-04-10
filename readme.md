@@ -193,12 +193,12 @@ Assumptions:
 - There are no random mutations, the "random offspring factor" parameter is set to 0.
 - The population of any behavior cannot fall below 0.
 
-Let's call the outcome matrix (1) $ M $
+Let's call the outcome matrix (1) $M$
 
 We will use the given notation for contructing submatrices: 
 
 $$
-M[a_{1}, a_{2}, ..., a_{r}; b_{1}, b_{2}, ..., b_{s}] = 
+M[a_{1}, a_{2}, \dots, a_{r}; b_{1}, b_{2}, \dots, b_{s}] = 
 \left(\begin{array}{cc} 
 m_{a_{1}, b_{1}} & m_{a_{1}, b_{2}} & \dots & m_{a_{1}, b_{s}}\\
 m_{a_{2}, b_{1}} & m_{a_{2}, b_{2}} & \dots & m_{a_{2}, b_{s}}  \\  
@@ -208,7 +208,9 @@ m_{a_{r}, b_{1}} & m_{a_{r}, b_{2}} & \dots & m_{a_{r}, b_{s}}  \\
 \tag{3}
 $$
 
-For example let's construct matrix $M_{0}$:
+where 
+$\set{a_{1}, a_{2}, \dots, a_{r}}$ are the indices of the $r$ selected rows and $\set{b_{1}, b_{2}, \dots, b_{s}}$ are the indices of the $s$ selected columns.
+For example let's construct matrix $M_{0}$ by taking elements from $M$ that are on rows 1, 4 and colums 1, 4: 
 
 $$
 M_{0} = M[1, 4; 1, 4] = 
@@ -218,6 +220,8 @@ M_{0} = M[1, 4; 1, 4] =
 \end{array}\right)
 \tag{4}
 $$
+
+
 
 [^1]: Cowden, C. C. (2012). Game Theory, Evolutionary Stable Strategies and the Evolution of Biological Interactions. Nature Education Knowledge 3(10):6.
 
