@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from simulation import Population
 # matplotlib.use('TkAgg')
 
+# plt.style.use('dark_background')
 
 behavior_names = ["doves", "hawks", "retaliators", "bullies", "probers"]
 beh_colors = np.array(['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f'])

@@ -62,19 +62,21 @@ dove_dominant_population = PopulationAnalytical(size=50000, generation_count=75,
                                                 behaviors=(0, 1), starting_animal_ratios=(10, 1))
 balanced_population.run_simulation()
 dove_dominant_population.run_simulation()
-plot_population(balanced_population, "Fig. 1.1. Balanced dove and hawk population coming to an equlibrium")
-plot_population(dove_dominant_population, "Fig. 1.2. Dove dominated dove and hawk population coming to an equlibrium")
+plot_population(balanced_population, 
+                "Fig. 1.1. Balanced dove and hawk population coming to an equlibrium")
+plot_population(dove_dominant_population, 
+                "Fig. 1.2. Dove dominated dove and hawk population coming to an equlibrium")
 ```
 
 
     
-![png](readme_figures/output_3_0.png)
+![png](readme_figures/output_3_0.jpg)
     
 
 
 
     
-![png](readme_figures/output_3_1.png)
+![png](readme_figures/output_3_1.jpg)
     
 
 
