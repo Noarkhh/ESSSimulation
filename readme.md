@@ -20,11 +20,15 @@ For now let's consider only two behaviors, Dove and Hawk. The Dove will spend ti
 gives up. If attacked immediately flees leaving the prize behind but avoiding injury. The Hawk will fight for the prize until victorious or injured.
 With these behaviors defined we can get the following table of expected average outcomes:
 
+<div align="center">
+ 
 |        |Dove|Hawk|    
 |--------|:--:|:--:|
 |**Dove**|15  |  0 |
 |**Hawk**|50  | -25|
  
+</div>
+
 Value from each cell represents how much on average will a behavior from it's row get when confronted with another behavior from it's column.
 For example: A dove when contesting with another dove will on average earn 15 points each, because they will both waste time 
 $(2 \times -10)$ and only one of them will get the prize $(+50)$, this gives average value of $\dfrac{2 \times -10 + 50}{2} = 15$.
@@ -77,7 +81,7 @@ plot_population(dove_dominant_population, "Fig. 1.2. Dove dominated dove and haw
 plot_ratios(expected_rewards(outcome_matrix), description="Fig. 1.3. Expected rewards in dove and hawk population,\nequal at x = 5/12", theme=theme)
 ```
 
-
+<div align="center">
     
 ![svg](readme_figures/output_3_0d.svg#gh-dark-mode-only)
 ![svg](readme_figures/output_3_0l.svg#gh-light-mode-only)
@@ -103,7 +107,7 @@ plot_ratios(expected_rewards(outcome_matrix), description="Fig. 1.3. Expected re
 ![svg](readme_figures/output_3_2d.svg#gh-dark-mode-only)
 ![svg](readme_figures/output_3_2l.svg#gh-light-mode-only)
     
-
+</div>
 
 ### Rules expansion
 
@@ -114,6 +118,8 @@ Let's introduce another 3 behaviors:
 
 We will also use the advanced version of outcome table[^3], for it has been studied more and is more complex:
 
+<div align="center">
+ 
 |                       | Dove | Hawk  | Retaliator | Bully | Prober-Retaliator |
 |-----------------------|:----:|:-----:|:----------:|:-----:|:-----------------:|
 | **Dove**              |  29  | 19.5  |     29     | 19.5  |       17.2        |
@@ -121,6 +127,8 @@ We will also use the advanced version of outcome table[^3], for it has been stud
 | **Retaliator**        |  29  | -22.3 |     29     | 57.1  |       23.1        |
 | **Bully**             |  80  |  4.9  |    11.9    | 41.5  |       11.2        |
 | **Prober-Retaliator** | 56.7 | -20.1 |    26.9    | 59.4  |       21.9        |
+ 
+</div>
 
 And from now on, instead of table we will use the **outcome matrix** with the ordering like in the table above:
 
@@ -160,7 +168,7 @@ plot_population(balanced_population, "Fig. 2.1. Population made up of all behavi
 plot_population(dove_dominant_population, "Fig. 2.2. Dove dominant population made up of all behaviors with being\ndominated by an equilibrium of hawks and bullies in a simulation", theme=theme)
 ```
 
-
+<div align="center">
     
 ![svg](readme_figures/output_6_0d.svg#gh-dark-mode-only)
 ![svg](readme_figures/output_6_0l.svg#gh-light-mode-only)
@@ -175,7 +183,7 @@ plot_population(dove_dominant_population, "Fig. 2.2. Dove dominant population ma
 ![svg](readme_figures/output_6_1d.svg#gh-dark-mode-only)
 ![svg](readme_figures/output_6_1l.svg#gh-light-mode-only)
     
-
+</div>
 
 The population made up of all behaviors with equal starting percentages ends up being dominated by probers-retaliators and other behaviors die out (see Figure 2.1.). However if the starting population is different, for example dominated by doves, the final population can be dominated by an equlibrium of hawks and bullies[^4] (see Figure 2.2.). The outcome of the simulation may seem difficult to predict, but we will try to find an analytical method to predict whether a population composed of given behaviors can be **evolutionarily stable**.
 
