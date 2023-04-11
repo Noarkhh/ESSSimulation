@@ -133,13 +133,13 @@ We will also use the advanced version of outcome table[^3], for it has been stud
 And from now on, instead of table we will use the **outcome matrix** with the ordering like in the table above:
 
 $$
-\left(\begin{array}{cc} 
+\left[\begin{array}{cc} 
 29 & 19.5 & 29 & 19.5 & 17.2\\
 80 & -19.5 & -18.1 & 74.6 & -18.9\\  
 29 & -22.3 & 29 & 57.1 & 23.1\\  
 80 & 4.9 & 11.9 & 41.5 & 11.2\\
 56.7 & -20.1 & 26.9 & 59.4 & 21.9\\
-\end{array}\right)
+\end{array}\right]
 \tag{2}
 $$
 
@@ -200,12 +200,12 @@ We will use the given notation for contructing submatrices:
 
 $$
 M[a_{1}, a_{2}, \dots, a_{r}; b_{1}, b_{2}, \dots, b_{s}] = 
-\left(\begin{array}{cc} 
+\left[\begin{array}{cc} 
 m_{a_{1}, b_{1}} & m_{a_{1}, b_{2}} & \dots & m_{a_{1}, b_{s}}\\
 m_{a_{2}, b_{1}} & m_{a_{2}, b_{2}} & \dots & m_{a_{2}, b_{s}}  \\  
 \vdots & \vdots & \ddots & \vdots\\  
 m_{a_{r}, b_{1}} & m_{a_{r}, b_{2}} & \dots & m_{a_{r}, b_{s}}  \\
-\end{array}\right)
+\end{array}\right]
 \tag{3}
 $$
 
@@ -213,10 +213,10 @@ where $\{ a_1, a_2, \dots, a_r \}$ are the indices of the $r$ selected rows and 
 
 $$
 M_{0} = M[1, 4; 1, 4] = 
-\left(\begin{array}{cc} 
+\left[\begin{array}{cc} 
 29 & 19.5 \\
 80 & 41.5 \\
-\end{array}\right)
+\end{array}\right]
 \tag{4}
 $$
 
@@ -234,9 +234,18 @@ The necessary condition for a population consisting of behaviors $\{a_1, a_2, \d
 
 $$
 M[a_1, a_2, \dots, a_r; a_1, a_2, \dots, a_r]
-\begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_r \end{bmatrix}
- = 
-\begin{bmatrix} c \\ c \\ \vdots \\ c \end{bmatrix}
+\left[\begin{array}{cc} 
+x_1 \\ 
+x_2 \\ 
+\vdots \\
+x_r 
+\end{array}\right] =
+\left[\begin{array}{cc} 
+ c \\ 
+ c \\ 
+\vdots \\
+ c 
+\end{array}\right]
 $$
 
 When vector of variables that satisfy this system of equations is normalized, it's elements are proportions of corresponding behaviors in the result *population*.
